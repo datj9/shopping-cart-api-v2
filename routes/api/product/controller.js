@@ -14,7 +14,7 @@ const getProducts = async (req, res) => {
 
         if (typeof category == "string") {
             const categoryRegEx = new RegExp(category, "i");
-            foundProducts = await Product.find({ "category.name": categoryRegEx }).limit(limit).skip(skip).select(["_id", "name", "thumbnailUrl", "price"]);
+            foundProducts = await Product.find({ "category.name": categoryRegEx }).limit(limit).skip(skip).select(["_id", "name", "thumbnailUrl", "price"]).sort([["createdAt", -1]]);
         } else {
             foundProducts = await Product.find().limit(limit).skip(skip).select(["_id", "name", "thumbnailUrl", "price"]).sort([["createdAt", -1]]);
         }
