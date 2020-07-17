@@ -2,7 +2,6 @@ const { Product } = require("../../../models/Product");
 const { Category } = require("../../../models/Category");
 const isInt = require("validator/lib/isInt");
 const isUrl = require("validator/lib/isURL");
-const isInt = require("validator/lib/isInt");
 const ObjectId = require("mongoose").Types.ObjectId;
 
 const getProducts = async (req, res) => {
