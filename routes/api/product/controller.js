@@ -19,13 +19,13 @@ const getProducts = async (req, res) => {
                 .limit(limit)
                 .skip(skip)
                 .select(["_id", "name", "thumbnailUrl", "price"]);
-            total = await Product.find({ "category.name": categoryRegEx });
+            total = await Product.countDocuments({ "category.name": categoryRegEx });
         } else {
             foundProducts = await Product.find()
                 .limit(limit)
                 .skip(skip)
                 .select(["_id", "name", "thumbnailUrl", "price"]);
-            total = await Product.find({ "category.name": categoryRegEx });
+            total = await Product.countDocuments({ "category.name": categoryRegEx });
         }
 
         const products = foundProducts.map((product) => ({
@@ -110,18 +110,7 @@ const createProduct = async (req, res) => {
 
 const updateProduct = async (req, res) => {
     const { productId } = req.params;
-    const {
-        name,
-        category,
-        remainingQuantity,
-        price,
-        chipset,
-        screenSize,
-        memory,
-        storage,
-        thumbnailUrl,
-        imageUrl,
-    } = req.body;
+    const { name, category, remainingQuantity, price, thumbnailUrl, imageUrl } = req.body;
     const errors = {};
 
     if (!name) errors.name = "name is required";
