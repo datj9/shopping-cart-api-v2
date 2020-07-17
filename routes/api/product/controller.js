@@ -2,6 +2,7 @@ const { Product } = require("../../../models/Product");
 const { Category } = require("../../../models/Category");
 const isInt = require("validator/lib/isInt");
 const isUrl = require("validator/lib/isURL");
+const isInt = require("validator/lib/isInt");
 const ObjectId = require("mongoose").Types.ObjectId;
 
 const getProducts = async (req, res) => {
@@ -11,19 +12,31 @@ const getProducts = async (req, res) => {
 
     try {
         let foundProducts;
+        let total;
 
         if (typeof category == "string") {
             const categoryRegEx = new RegExp(category, "i");
-            foundProducts = await Product.find({ "category.name": categoryRegEx }).limit(limit).skip(skip).select(["_id", "name", "thumbnailUrl", "price"]);
+            foundProducts = await Product.find({ "category.name": categoryRegEx })
+                .limit(limit)
+                .skip(skip)
+                .select(["_id", "name", "thumbnailUrl", "price"]);
+            total = await Product.find({ "category.name": categoryRegEx });
         } else {
-            foundProducts = await Product.find().limit(limit).skip(skip).select(["_id", "name", "thumbnailUrl", "price"]);
+            foundProducts = await Product.find()
+                .limit(limit)
+                .skip(skip)
+                .select(["_id", "name", "thumbnailUrl", "price"]);
+            total = await Product.find({ "category.name": categoryRegEx });
         }
 
         const products = foundProducts.map((product) => ({
             ...product.transform(),
             category: product.category && product.category.transform(),
         }));
-        return res.status(200).json(products);
+        return res.status(200).json({
+            products,
+            total,
+        });
     } catch (error) {
         return res.status(500).json(error);
     }
@@ -59,7 +72,13 @@ const createProduct = async (req, res) => {
     if (sizes && !Array.isArray(sizes)) {
         errors.sizes = "sizes is invalid";
     }
-    if ((typeof thumbnailUrl != "undefined" || thumbnailUrl != "") && (typeof thumbnailUrl != "string" || !isUrl(thumbnailUrl))) {
+    if ((remainingQuantity || remainingQuantity != "") && !isInt(remainingQuantity + "")) {
+        errors.remainingQuantity = "remainingQuantity is invalid";
+    }
+    if (
+        (typeof thumbnailUrl != "undefined" || thumbnailUrl != "") &&
+        (typeof thumbnailUrl != "string" || !isUrl(thumbnailUrl))
+    ) {
         errors.thumbnailUrl = "thumbnailUrl is invalid";
     }
     if ((typeof imageUrl != "undefined" || imageUrl != "") && (typeof imageUrl != "string" || !isUrl(imageUrl))) {
@@ -76,6 +95,7 @@ const createProduct = async (req, res) => {
             price: price ? price : undefined,
             imageUrl: imageUrl ? imageUrl : undefined,
             thumbnailUrl: thumbnailUrl ? thumbnailUrl : undefined,
+            remainingQuantity: remainingQuantity ? parseInt(remainingQuantity) : undefined,
             sizes: sizes ? sizes : undefined,
             category: foundCategory,
         });
@@ -91,7 +111,18 @@ const createProduct = async (req, res) => {
 
 const updateProduct = async (req, res) => {
     const { productId } = req.params;
-    const { name, category, remainingQuantity, price, chipset, screenSize, memory, storage, thumbnailUrl, imageUrl } = req.body;
+    const {
+        name,
+        category,
+        remainingQuantity,
+        price,
+        chipset,
+        screenSize,
+        memory,
+        storage,
+        thumbnailUrl,
+        imageUrl,
+    } = req.body;
     const errors = {};
 
     if (!name) errors.name = "name is required";
