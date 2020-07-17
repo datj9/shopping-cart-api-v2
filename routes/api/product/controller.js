@@ -71,7 +71,11 @@ const createProduct = async (req, res) => {
     if (sizes && !Array.isArray(sizes)) {
         errors.sizes = "sizes is invalid";
     }
-    if ((remainingQuantity || remainingQuantity != "") && !isInt(remainingQuantity + "")) {
+    if (
+        (typeof remainingQuantity == "number" || typeof remainingQuantity == "string") &&
+        remainingQuantity != "" &&
+        !isInt(remainingQuantity + "")
+    ) {
         errors.remainingQuantity = "remainingQuantity is invalid";
     }
     if (
