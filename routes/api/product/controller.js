@@ -25,7 +25,7 @@ const getProducts = async (req, res) => {
                 .limit(limit)
                 .skip(skip)
                 .select(["_id", "name", "thumbnailUrl", "price"]);
-            total = await Product.countDocuments({ "category.name": categoryRegEx });
+            total = await Product.countDocuments();
         }
 
         const products = foundProducts.map((product) => ({
