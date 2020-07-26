@@ -16,10 +16,8 @@ const UserSchema = new mongoose.Schema({
     },
     userType: {
         type: String,
-        default: "client",
+        default: "admin",
     },
-    savedTutorials: [{ type: mongoose.Types.ObjectId, ref: "Tutorial" }],
-    profilePhoto: String,
 });
 
 UserSchema.method("transform", function () {
