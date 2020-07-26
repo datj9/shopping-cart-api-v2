@@ -114,29 +114,29 @@ const createProduct = async (req, res) => {
 
 const updateProduct = async (req, res) => {
     const { productId } = req.params;
-    const { name, category, remainingQuantity, price, thumbnailUrl, imageUrl } = req.body;
+    const { name, category, price, thumbnailUrl, imageUrl } = req.body;
     const errors = {};
 
     if (!name) errors.name = "name is required";
     if (!category) errors.category = "category is required";
     if (!price) errors.price = "price is required";
-    if (Object.keys(errors).length > 0) return res.status(400).json(errors);
+    if (Object.keys(errors).length) return res.status(400).json(errors);
 
     if (!ObjectId.isValid(category + "")) errors.category = "categoryId is invalid";
 
-    if (typeof price != "number" || !isInt(price + "")) {
+    if (!isInt(price + "")) {
         errors.price = "price is invalid";
     }
     if (sizes && !Array.isArray(sizes)) {
         errors.sizes = "sizes is invalid";
     }
-    if (typeof thumbnailUrl != "undefined" && (typeof thumbnailUrl != "string" || !isUrl(thumbnailUrl))) {
+    if (thumbnailUrl && !isUrl(thumbnailUrl + "")) {
         errors.thumbnailUrl = "thumbnailUrl is invalid";
     }
-    if (typeof imageUrl != "undefined" && (typeof imageUrl != "string" || !isUrl(imageUrl))) {
+    if (imageUrl && !isUrl(imageUrl + "")) {
         errors.imageUrl = "imageUrl is invalid";
     }
-    if (Object.keys(errors).length > 0) return res.status(400).json(errors);
+    if (Object.keys(errors).length) return res.status(400).json(errors);
 
     try {
         const foundCategory = await Category.findById(category);
@@ -166,7 +166,7 @@ const updateProduct = async (req, res) => {
 const deleteProduct = async (req, res) => {
     const { productId } = req.params;
 
-    if (!ObjectId.isValid(productId)) return res.status(400).json({ productId: "ProductId is invalid" });
+    if (!ObjectId.isValid(productId)) return res.status(400).json({ productId: "productId is invalid" });
 
     try {
         const product = await Product.findById(productId);
