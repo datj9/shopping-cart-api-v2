@@ -59,12 +59,13 @@ const signIn = async (req, res) => {
     const validatedFields = ["email", "password"];
     const errors = {};
     const { email, password } = req.body;
+    let user;
     for (let field of validatedFields) {
         if (isEmpty(req.body[field])) errors[field] = `${field} is required`;
     }
     if (Object.keys(errors).length) return res.status(500).json(errors);
 
-    let user = await User.findOne({ email });
+    user = await User.findOne({ email });
     if (!user) return res.status(500).json({ email: "Email does not exist" });
 
     const isMatch = await bcrypt.compare(password, user.password);
